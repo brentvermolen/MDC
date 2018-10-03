@@ -44,13 +44,51 @@ namespace MovieDiskControl
 						int jaar = Toolbox.GetJaartal(film.Name);
                         FileInfo[] info = film.GetFiles();
 
-                        if (info[0].Length > 1073741824)
+                        if (info[0].Length > 2000000000)
                         {
                             decimal lengte = Math.Round(Decimal.Parse(info[0].Length.ToString()) / 1000000000, 2);
-                            Errors.Add(film.ToString() + ": Bestand is groter dan 1GB\t(" + lengte + " Gb)");
+                            Errors.Add(film.ToString() + ": Bestand is groter dan 2GB\t(" + lengte + " Gb)");
                         }
 
-						Films.Add(new Film(naam, jaar, film.FullName, info[0].Length));
+                        if (info.Length != 2)
+                        {
+                            if (info.Length > 2)
+                            {
+                                Errors.Add(film.ToString() + ": Meer dan 2 bestanden in map.");
+                            }
+                            else
+                            {
+                                if (info.Length == 0)
+                                {
+                                    Errors.Add(film.ToString() + ": Geen bestanden in map.");
+                                }
+                                else
+                                {
+                                    if (info[0].Extension.ToLower().ToLower() == ".srt")
+                                    {
+                                        Errors.Add(film.ToString() + ": Geen video bestand in map.");
+                                    }
+                                    else
+                                    {
+                                        Errors.Add(film.ToString() + ": Geen ondertiteling in map.");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var movieFile = info.FirstOrDefault(f => f.Extension.ToLower() != ".srt");
+
+                            if (movieFile != null)
+                            {
+                                if (movieFile.Extension.ToLower() != ".mkv")
+                                {
+                                    Errors.Add(film.ToString() + ": Videobestand is niet van formaat .mkv");
+                                }
+                            }
+                        }
+
+                        Films.Add(new Film(naam, jaar, film.FullName, info[0].Length));
 					}
 					else
 					{
@@ -61,10 +99,48 @@ namespace MovieDiskControl
                         {
                             FileInfo[] info = sequel.GetFiles();
 
-                            if (info[0].Length > 1073741824)
+                            if (info[0].Length > 2000000000)
                             {
                                 decimal lengte = Math.Round(Decimal.Parse(info[0].Length.ToString()) / 1000000000, 2);
-                                Errors.Add(sequel.ToString() + ": Bestand is groter dan 1GB\t(" + lengte + " Gb)");
+                                Errors.Add(sequel.ToString() + ": Bestand is groter dan 2GB\t(" + lengte + " Gb)");
+                            }
+
+                            if (info.Length != 2)
+                            {
+                                if (info.Length > 2)
+                                {
+                                    Errors.Add(mov.Titel + " - " + sequel.ToString() + ": Meer dan 2 bestanden in map.");
+                                }
+                                else
+                                {
+                                    if (info.Length == 0)
+                                    {
+                                        Errors.Add(mov.Titel + " - " + sequel.ToString() + ": Geen bestanden in map.");
+                                    }
+                                    else
+                                    {
+                                        if (info[0].Extension.ToLower() == ".srt")
+                                        {
+                                            Errors.Add(mov.Titel + " - " + sequel.ToString() + ": Geen video bestand in map.");
+                                        }
+                                        else
+                                        {
+                                            Errors.Add(mov.Titel + " - " + sequel.ToString() + ": Geen ondertiteling in map.");
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var movieFile = info.FirstOrDefault(f => f.Extension.ToLower() != ".srt");
+
+                                if (movieFile != null)
+                                {
+                                    if (movieFile.Extension.ToLower() != ".mkv")
+                                    {
+                                        Errors.Add(mov.Titel + " - " + sequel.ToString() + ": Videobestand is niet van formaat .mkv");
+                                    }
+                                }
                             }
 
                             Film seq = new Film(Toolbox.GetTitel(film.Name) + " - " + Toolbox.GetTitel(sequel.Name), Toolbox.GetJaartal(sequel.Name), sequel.FullName, info[0].Length);
